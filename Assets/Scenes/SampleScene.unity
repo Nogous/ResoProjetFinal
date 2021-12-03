@@ -305,7 +305,12 @@ MonoBehaviour:
     ProtocolVersion: 0
     NetworkTransport: {fileID: 170176094}
     PlayerPrefab: {fileID: 129144925294474074, guid: ba983732a8d0e924694412cd610e7cb3, type: 3}
-    NetworkPrefabs: []
+    NetworkPrefabs:
+    - Override: 0
+      Prefab: {fileID: 129144925294474074, guid: ba983732a8d0e924694412cd610e7cb3, type: 3}
+      SourcePrefabToOverride: {fileID: 0}
+      SourceHashToOverride: 0
+      OverridingTargetPrefab: {fileID: 0}
     TickRate: 30
     ClientConnectionBufferTimeout: 10
     ConnectionApproval: 1
@@ -1007,7 +1012,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1030347698
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1428,6 +1433,18 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
+      - m_Target: {fileID: 1382239199}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1309878648
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1481,7 +1498,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1314192482
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1594,7 +1611,7 @@ Transform:
   m_GameObject: {fileID: 1355975625}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 20, y: 1, z: 20}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 3
@@ -1764,6 +1781,18 @@ MonoBehaviour:
         m_TargetAssemblyTypeName: ConnectionManager, Assembly-CSharp
         m_MethodName: Join
         m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+      - m_Target: {fileID: 1382239199}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -2366,7 +2395,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0f6a57430c0291d47825fbe3c0b79901, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  IPAddress: 127.0.0.1
+  _IPAddress: 127.0.0.1
 --- !u!4 &2005154127
 Transform:
   m_ObjectHideFlags: 0

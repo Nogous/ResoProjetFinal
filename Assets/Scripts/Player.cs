@@ -5,44 +5,60 @@ namespace ShapeFight
 {
     public class Player : NetworkBehaviour
     {
-        public NetworkVariable<Vector3> Position = new NetworkVariable<Vector3>();
+        private CharacterController controller;
+        private Vector3 playerVelocity;
+        private bool groundedPlayer;
+        private float playerSpeed = 2.0f;
+        private float jumpHeight = 1.0f;
+        private float gravityValue = -9.81f;
 
-        public override void OnNetworkSpawn()
+        private void Start()
         {
-            if (IsOwner)
+            if (IsLocalPlayer)
             {
-                Move();
-            }
-        }
-
-        public void Move()
-        {
-            if (NetworkManager.Singleton.IsServer)
-            {
-                var randomPosition = GetRandomPositionOnPlane();
-                transform.position = randomPosition;
-                Position.Value = randomPosition;
+                controller = gameObject.AddComponent<CharacterController>();
             }
             else
             {
-                SubmitPositionRequestServerRpc();
+
             }
         }
 
-        [ServerRpc]
-        void SubmitPositionRequestServerRpc(ServerRpcParams rpcParams = default)
+        void Move()
         {
-            Position.Value = GetRandomPositionOnPlane();
-        }
+            groundedPlayer = controller.isGrounded;
+            if (groundedPlayer && playerVelocity.y < 0)
+            {
+                playerVelocity.y = 0f;
+            }
 
-        static Vector3 GetRandomPositionOnPlane()
-        {
-            return new Vector3(Random.Range(-3f, 3f), 1f, Random.Range(-3f, 3f));
-        }
+            Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            controller.Move(move * Time.deltaTime * playerSpeed);
 
+            if (move != Vector3.zero)
+            {
+                gameObject.transform.forward = move;
+            }
+
+            // Changes the height position of the player..
+            if (Input.GetButtonDown("Jump") && groundedPlayer)
+            {
+                playerVelocity.y += Mathf.Sqrt(jumpHeight * -3.0f * gravityValue);
+            }
+
+            playerVelocity.y += gravityValue * Time.deltaTime;
+            controller.Move(playerVelocity * Time.deltaTime);
+        }
         void Update()
         {
-            transform.position = Position.Value;
+            if (IsLocalPlayer)
+            {
+                Move();
+            }
+            else
+            {
+                
+            }
         }
     }
 }

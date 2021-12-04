@@ -356,8 +356,8 @@ MonoBehaviour:
   MaxConnections: 100
   MaxSentMessageQueueSize: 128
   ConnectAddress: 76.67.211.188
-  ConnectPort: 25565
-  ServerListenPort: 25565
+  ConnectPort: 9998
+  ServerListenPort: 9998
   MessageSendMode: 0
 --- !u!1 &679424925
 GameObject:

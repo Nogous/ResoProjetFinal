@@ -15,6 +15,8 @@ namespace ShapeFight
         private float jumpHeight = 1.0f;
         private float gravityValue = -9.81f;
 
+        [SerializeField] private Transform lookTargetRay;
+
         //pickeup
         public NetworkVariable<bool> asObjectPickedUp = new NetworkVariable<bool>();
 
@@ -40,7 +42,7 @@ namespace ShapeFight
                     gameObject.GetComponent<Renderer>().material.color = Color.red;
                     break;
                 case 1:
-                    gameObject.GetComponent<Renderer>().material.color = Color.blue;
+                    gameObject.GetComponent<Renderer>().materials[0].color = Color.blue;
                     break;
                 default:
                     break;
@@ -84,23 +86,13 @@ namespace ShapeFight
                     if (asObjectPickedUp.Value)
                     {
                         // poser l'objet
-                        DropObjServerRpc();
+                        DropObject();
+                        //DropObjServerRpc();
                     }
                     else
                     {
                         // test de prise d'objet
-                        var hit = Physics.OverlapSphere(transform.position, 5);
-                        if (hit.Length > 0)
-                        {
-                            PickeUpObject obj = hit[0].gameObject.GetComponent<PickeUpObject>();
-                            if (obj != null)
-                            {
-                                if (IsServer)
-                                    PickupObjectClientRpc(obj.NetworkObjectId);
-                                else
-                                    PickupObjectServerRpc(obj.NetworkObjectId);
-                            }
-                        }
+                        PickupObject();
                     }
                 }
             }
@@ -108,6 +100,36 @@ namespace ShapeFight
             {
                 
             }
+        }
+
+
+        void PickupObject()
+        {
+
+            RaycastHit hit;
+            Debug.DrawLine(transform.position, transform.position + lookTargetRay.position - transform.position * 1f, Color.blue, 1f);
+            Physics.SphereCast(transform.position, .1f, lookTargetRay.position - transform.position, out hit);
+            if (hit.transform)
+            {
+                //Debug.Log(hit.transform.gameObject.name);
+                PickeUpObject obj = hit.transform.gameObject.GetComponent<PickeUpObject>();
+                if (obj != null)
+                {
+                    print(obj.gameObject.name);
+
+                    if (IsServer)
+                        PickupObjectClientRpc(obj.NetworkObjectId);
+                    else
+                        PickupObjectServerRpc(obj.NetworkObjectId);
+                }
+            }
+        }
+        void DropObject()
+        {
+            if (IsServer)
+                DropObjClientRpc();
+            else
+                DropObjServerRpc();
         }
 
         [ServerRpc]
@@ -136,6 +158,11 @@ namespace ShapeFight
 
         [ServerRpc]
         public void DropObjServerRpc()
+        {
+            DropObjClientRpc();
+        }
+        [ClientRpc]
+        public void DropObjClientRpc()
         {
             if (pickedUpObject != null)
             {

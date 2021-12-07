@@ -127,6 +127,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 868e25e020cc08745a9eaf69634af2a8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  localPos: {x: 0, y: 0, z: 0}
+  isPickedUp: 0
 --- !u!114 &5242347304273149658
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -151,8 +153,8 @@ MonoBehaviour:
   PositionThreshold: 0.001
   RotAngleThreshold: 0.01
   ScaleThreshold: 0.01
-  InLocalSpace: 0
-  Interpolate: 1
+  InLocalSpace: 1
+  Interpolate: 0
   CanCommitToTransform: 0
 --- !u!54 &-6716583423102148746
 Rigidbody:

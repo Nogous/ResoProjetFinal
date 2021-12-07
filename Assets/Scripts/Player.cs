@@ -1,4 +1,5 @@
 using Unity.Netcode;
+using Unity.Netcode.Samples;
 using UnityEngine;
 
 namespace ShapeFight
@@ -87,7 +88,6 @@ namespace ShapeFight
                     {
                         // poser l'objet
                         DropObject();
-                        //DropObjServerRpc();
                     }
                     else
                     {
@@ -115,7 +115,7 @@ namespace ShapeFight
                 PickeUpObject obj = hit.transform.gameObject.GetComponent<PickeUpObject>();
                 if (obj != null)
                 {
-                    print(obj.gameObject.name);
+                    //print(obj.gameObject.name);
 
                     if (IsServer)
                         PickupObjectClientRpc(obj.NetworkObjectId);
@@ -141,19 +141,24 @@ namespace ShapeFight
         [ClientRpc]
         void PickupObjectClientRpc(ulong objectToPickupID)
         {
-            print("try to pickup");
+            //print("try to pickup");
 
             NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(objectToPickupID, out var objectToPickup);
             // l'objet et deja pris donc peut pas etre pris
             if (objectToPickup == null || objectToPickup.transform.parent != null) return;
 
-            print("object pickup");
+            //print("object pickup");
 
             objectToPickup.GetComponent<Rigidbody>().isKinematic = true;
-            objectToPickup.transform.parent = transform;
+            if (IsServer)
+                objectToPickup.transform.parent = transform;
             objectToPickup.transform.localPosition = Vector3.up;
             asObjectPickedUp.Value = true;
             pickedUpObject = objectToPickup;
+            PickeUpObject pick = pickedUpObject.gameObject.GetComponent<PickeUpObject>();
+            pick.isPickedUp = true;
+            pick.localPos = pick.transform.localPosition;
+            pickedUpObject.gameObject.GetComponent<ClientNetworkTransform>().InLocalSpace = true;
         }
 
         [ServerRpc]
@@ -168,8 +173,14 @@ namespace ShapeFight
             {
                 // can be null if enter drop zone while carying
                 pickedUpObject.transform.localPosition = new Vector3(0, 0, 3);
-                pickedUpObject.transform.parent = null;
+                if (IsServer)
+                    pickedUpObject.transform.parent = null;
                 pickedUpObject.GetComponent<Rigidbody>().isKinematic = false;
+                
+                pickedUpObject.gameObject.GetComponent<ClientNetworkTransform>().InLocalSpace = false;
+                PickeUpObject pick = pickedUpObject.gameObject.GetComponent<PickeUpObject>();
+                pick.isPickedUp = false;
+
                 pickedUpObject = null;
             }
 

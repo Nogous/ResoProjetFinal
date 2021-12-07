@@ -12,4 +12,9 @@ public class PickeUpObject : NetworkBehaviour
             return;
         }
     }
+
+    private void Update()
+    {
+        //transform.position += Vector3.up * Time.deltaTime;
+    }
 }

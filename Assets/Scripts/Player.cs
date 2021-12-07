@@ -5,6 +5,9 @@ namespace ShapeFight
 {
     public class Player : NetworkBehaviour
     {
+        public static int id = 0;
+        int idcolor = 0;
+
         private CharacterController controller;
         private Vector3 playerVelocity;
         private bool groundedPlayer;
@@ -19,6 +22,9 @@ namespace ShapeFight
 
         private void Start()
         {
+            idcolor = id;
+            id++;
+
             if (IsLocalPlayer)
             {
                 controller = gameObject.AddComponent<CharacterController>();
@@ -26,6 +32,18 @@ namespace ShapeFight
             else
             {
 
+            }
+
+            switch (idcolor)
+            {
+                case 0:
+                    gameObject.GetComponent<Renderer>().material.color = Color.red;
+                    break;
+                case 1:
+                    gameObject.GetComponent<Renderer>().material.color = Color.blue;
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -54,6 +72,7 @@ namespace ShapeFight
             playerVelocity.y += gravityValue * Time.deltaTime;
             controller.Move(playerVelocity * Time.deltaTime);
         }
+
         void Update()
         {
             if (IsLocalPlayer)
@@ -76,7 +95,10 @@ namespace ShapeFight
                             PickeUpObject obj = hit[0].gameObject.GetComponent<PickeUpObject>();
                             if (obj != null)
                             {
-                                PickupObjectServerRpc(obj.NetworkObjectId);
+                                if (IsServer)
+                                    PickupObjectClientRpc(obj.NetworkObjectId);
+                                else
+                                    PickupObjectServerRpc(obj.NetworkObjectId);
                             }
                         }
                     }
@@ -89,7 +111,13 @@ namespace ShapeFight
         }
 
         [ServerRpc]
-        public void PickupObjectServerRpc(ulong objectToPickupID)
+        void PickupObjectServerRpc(ulong objectToPickupID)
+        {
+            PickupObjectClientRpc(objectToPickupID);
+        }
+
+        [ClientRpc]
+        void PickupObjectClientRpc(ulong objectToPickupID)
         {
             print("try to pickup");
 

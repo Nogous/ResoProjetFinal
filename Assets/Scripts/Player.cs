@@ -105,22 +105,25 @@ namespace ShapeFight
 
         void PickupObject()
         {
-
-            RaycastHit hit;
             Debug.DrawLine(transform.position, transform.position + lookTargetRay.position - transform.position * 1f, Color.blue, 1f);
-            Physics.SphereCast(transform.position, .1f, lookTargetRay.position - transform.position, out hit);
-            if (hit.transform)
+            RaycastHit[] hit = Physics.SphereCastAll(transform.position, .1f, lookTargetRay.position - transform.position);
+            for (int i = 0; i < hit.Length; i++)
             {
-                //Debug.Log(hit.transform.gameObject.name);
-                PickeUpObject obj = hit.transform.gameObject.GetComponent<PickeUpObject>();
-                if (obj != null)
+                if (hit[i].transform)
                 {
-                    //print(obj.gameObject.name);
+                    //Debug.Log(hit.transform.gameObject.name);
+                    PickeUpObject obj = hit[i].transform.gameObject.GetComponent<PickeUpObject>();
+                    if (obj != null)
+                    {
+                        //print(obj.gameObject.name);
 
-                    if (IsServer)
-                        PickupObjectClientRpc(obj.NetworkObjectId);
-                    else
-                        PickupObjectServerRpc(obj.NetworkObjectId);
+                        if (IsServer)
+                            PickupObjectClientRpc(obj.NetworkObjectId);
+                        else
+                            PickupObjectServerRpc(obj.NetworkObjectId);
+
+                        return;
+                    }
                 }
             }
         }
@@ -159,6 +162,7 @@ namespace ShapeFight
             pick.isPickedUp = true;
             pick.localPos = pick.transform.localPosition;
             pickedUpObject.gameObject.GetComponent<ClientNetworkTransform>().InLocalSpace = true;
+            pickedUpObject.gameObject.GetComponent<Collider>().enabled = false;
         }
 
         [ServerRpc]
@@ -172,7 +176,7 @@ namespace ShapeFight
             if (pickedUpObject != null)
             {
                 // can be null if enter drop zone while carying
-                pickedUpObject.transform.localPosition = new Vector3(0, 0, 3);
+                pickedUpObject.transform.localPosition = new Vector3(0, 0, 2);
                 if (IsServer)
                     pickedUpObject.transform.parent = null;
                 pickedUpObject.GetComponent<Rigidbody>().isKinematic = false;
@@ -180,6 +184,8 @@ namespace ShapeFight
                 pickedUpObject.gameObject.GetComponent<ClientNetworkTransform>().InLocalSpace = false;
                 PickeUpObject pick = pickedUpObject.gameObject.GetComponent<PickeUpObject>();
                 pick.isPickedUp = false;
+                pick.gameObject.GetComponent<Collider>().enabled = true;
+
 
                 pickedUpObject = null;
             }

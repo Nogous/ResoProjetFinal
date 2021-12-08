@@ -2,35 +2,39 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Tangrame : MonoBehaviour
+namespace ShapeFight
 {
-    [SerializeField] private int[] picesToComplite;
-
-    public bool IntegratePice(int idPice)
+    public class Tangrame : MonoBehaviour
     {
-        if (picesToComplite[idPice] > 0)
+        [SerializeField] private int[] picesToComplite;
+
+        public bool IntegratePice(int idPice, int idPlayer)
         {
-            picesToComplite[idPice]--;
-            IsComplite();
-            return true;
+            if (picesToComplite[idPice] > 0)
+            {
+                picesToComplite[idPice]--;
+                IsComplite(idPlayer);
+                return true;
+            }
+
+            return false;
         }
 
-        return false;
-    }
-
-    public void IsComplite()
-    {
-        int nb = 0;
-
-        foreach (int item in picesToComplite)
+        public void IsComplite(int idPlayer)
         {
-            nb += item;
+            int nb = 0;
+
+            foreach (int item in picesToComplite)
+            {
+                nb += item;
+            }
+
+            if (nb == 0)
+            {
+                print("Yes");
+                GameManager.instance.AddPointsToPlayer(idPlayer);
+                // complet
         }
-
-        if (nb==0)
-        {
-            print("Yes");
-            // complet
         }
     }
 }

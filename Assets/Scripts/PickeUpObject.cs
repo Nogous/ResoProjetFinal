@@ -1,30 +1,34 @@
 using Unity.Netcode;
 using UnityEngine;
-
-public class PickeUpObject : NetworkBehaviour
+namespace ShapeFight
 {
-    public Vector3 localPos;
-    public bool isPickedUp = false;
-
-    public int idForme;
-
-    private void Update()
+    public class PickeUpObject : NetworkBehaviour
     {
-        if (isPickedUp)
+        public Vector3 localPos;
+        public bool isPickedUp = false;
+
+        public int idForme;
+        public int lastPlayerId;
+
+        private void Update()
         {
-            transform.localPosition = localPos;
+            if (isPickedUp)
+            {
+                transform.localPosition = localPos;
+            }
+        }
+
+        private void OnTriggerEnter(Collider other)
+        {
+            Tangrame tang = other.transform.gameObject.GetComponent<Tangrame>();
+
+            if (tang.IntegratePice(idForme, lastPlayerId))
+            {
+                print("hit");
+                gameObject.GetComponent<Collider>().enabled = false;
+                gameObject.GetComponent<Rigidbody>().isKinematic = true;
+            }
         }
     }
 
-    private void OnTriggerEnter(Collider other)
-    {
-        Tangrame tang = other.transform.gameObject.GetComponent<Tangrame>();
-
-        if (tang.IntegratePice(idForme))
-        {
-            print("hit");
-            gameObject.GetComponent<Collider>().enabled = false;
-            gameObject.GetComponent<Rigidbody>().isKinematic = true;
-        }
-    }
 }

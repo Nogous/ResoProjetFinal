@@ -1,11 +1,17 @@
 using Unity.Netcode;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace ShapeFight
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager instance;
+        public int[] gamePoints = new int[2];
+
+        //interface
+        [SerializeField] private Text scoreP1;
+        [SerializeField] private Text scoreP2;
 
         public Transform camera;
 
@@ -15,6 +21,21 @@ namespace ShapeFight
                 instance = this;
             else
                 Destroy(this);
+        }
+
+        public void AddPointsToPlayer(int idPlayer, int nbPoints = 1)
+        {
+            if (!(idPlayer == 0 || idPlayer == 1)) return;
+
+            gamePoints[idPlayer] += nbPoints;
+            UpdatePoints();
+        }
+
+        [ClientRpc]
+        public void UpdatePoints()
+        {
+            scoreP1.text = gamePoints[0].ToString();
+            scoreP2.text = gamePoints[1].ToString();
         }
 
         //private void OnGUI()

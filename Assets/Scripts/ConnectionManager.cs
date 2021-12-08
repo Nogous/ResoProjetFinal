@@ -16,10 +16,14 @@ public class ConnectionManager : NetworkBehaviour
     public string _IPAddress = "127.0.0.1";
     public string _password = "";
     public string _playerName = "Player";
-    public NetworkList<FixedString32Bytes> _playerNames = new NetworkList<FixedString32Bytes>();
+    NetworkList<FixedString32Bytes> _playerNames;
     public NetworkVariable<int> _playerCount = new NetworkVariable<int>();
     public NetworkVariable<int> _readyPlayerCount = new NetworkVariable<int>();
 
+    void Awake()
+    {
+        _playerNames = new NetworkList<FixedString32Bytes>();
+    }
     public void SetPassword(string password)
     {
         _password = password;

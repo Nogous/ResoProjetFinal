@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace ShapeFight
 {
-    public class GameManager : MonoBehaviour
+    public class GameManager : NetworkBehaviour
     {
         public static GameManager instance;
         public int[] gamePoints = new int[2];
@@ -14,6 +14,8 @@ namespace ShapeFight
         [SerializeField] private Text scoreP2;
 
         public Transform camera;
+
+        public NetworkVariable<bool> gameLaunched;
 
         private void Awake()
         {
@@ -28,15 +30,18 @@ namespace ShapeFight
             if (!(idPlayer == 0 || idPlayer == 1)) return;
 
             gamePoints[idPlayer] += nbPoints;
-            UpdatePoints();
+            UpdatePointsClientRpc();
         }
 
         [ClientRpc]
-        public void UpdatePoints()
+        public void UpdatePointsClientRpc()
         {
             scoreP1.text = gamePoints[0].ToString();
             scoreP2.text = gamePoints[1].ToString();
         }
+
+        
+        
 
         //private void OnGUI()
         //{

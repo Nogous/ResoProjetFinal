@@ -80,6 +80,7 @@ namespace ShapeFight
         {
             if (IsLocalPlayer)
             {
+                if(!GameManager.instance.gameLaunched.Value)return;
                 Move();
 
                 if (Input.GetKeyDown(KeyCode.E))

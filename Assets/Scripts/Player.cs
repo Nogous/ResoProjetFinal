@@ -23,18 +23,19 @@ namespace ShapeFight
 
         private NetworkObject pickedUpObject;
 
+        public NetworkVariable<bool> isReady = new NetworkVariable<bool>();
+
         private void Start()
         {
+            if (IsOwner) GameManager.instance.player = this;
+
+
             idcolor = id;
             id++;
 
             if (IsLocalPlayer)
             {
                 controller = gameObject.AddComponent<CharacterController>();
-            }
-            else
-            {
-
             }
 
             switch (idcolor)
@@ -78,9 +79,9 @@ namespace ShapeFight
 
         void Update()
         {
+            if (!GameManager.instance.gameLaunched.Value) return;
             if (IsLocalPlayer)
             {
-                if(!GameManager.instance.gameLaunched.Value)return;
                 Move();
 
                 if (Input.GetKeyDown(KeyCode.E))
@@ -96,10 +97,6 @@ namespace ShapeFight
                         PickupObject();
                     }
                 }
-            }
-            else
-            {
-                
             }
         }
 
@@ -192,6 +189,46 @@ namespace ShapeFight
             }
 
             asObjectPickedUp.Value = false;
+        }
+
+
+
+        public void AddPointsToPlayer(int idPlayer, int nbPoints = 1)
+        {
+            if (!(idPlayer == 0 || idPlayer == 1)) return;
+
+            GameManager.instance.gamePoints[idPlayer] += nbPoints;
+            UpdatePointsClientRpc();
+        }
+
+        public void PlayerReady()
+        {
+            PlayerReadyServerRpc();
+        }
+
+        [ClientRpc]
+        public void UpdatePointsClientRpc()
+        {
+            GameManager.instance.scoreP1.text = GameManager.instance.gamePoints[0].ToString();
+            GameManager.instance.scoreP2.text = GameManager.instance.gamePoints[1].ToString();
+        }
+
+        [ServerRpc]
+        void PlayerReadyServerRpc()
+        {
+            PlayerReadyClientRpc();
+        }
+
+        [ClientRpc]
+        void PlayerReadyClientRpc()
+        {
+            print(GameManager.instance.nbPlayerReady);
+
+            GameManager.instance.nbPlayerReady++;
+            if (GameManager.instance.nbPlayerReady == 2)
+            {
+                GameManager.instance.gameLaunched.Value = true;
+            }
         }
     }
 }

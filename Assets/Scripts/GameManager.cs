@@ -9,13 +9,17 @@ namespace ShapeFight
         public static GameManager instance;
         public int[] gamePoints = new int[2];
 
+        public Player player;
+
         //interface
-        [SerializeField] private Text scoreP1;
-        [SerializeField] private Text scoreP2;
+        public Text scoreP1;
+        public Text scoreP2;
 
         public Transform camera;
 
-        public NetworkVariable<bool> gameLaunched;
+        public NetworkVariable<bool> gameLaunched = new NetworkVariable<bool>();
+        public int nbPlayerReady = 0;
+        bool isReady = false;
 
         private void Awake()
         {
@@ -27,21 +31,15 @@ namespace ShapeFight
 
         public void AddPointsToPlayer(int idPlayer, int nbPoints = 1)
         {
-            if (!(idPlayer == 0 || idPlayer == 1)) return;
-
-            gamePoints[idPlayer] += nbPoints;
-            UpdatePointsClientRpc();
+            player.AddPointsToPlayer(idPlayer, nbPoints);
         }
 
-        [ClientRpc]
-        public void UpdatePointsClientRpc()
+
+        public void PlayerReady()
         {
-            scoreP1.text = gamePoints[0].ToString();
-            scoreP2.text = gamePoints[1].ToString();
+            isReady = true;
+            player.PlayerReady();
         }
-
-        
-        
 
         //private void OnGUI()
         //{

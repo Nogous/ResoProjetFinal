@@ -597,7 +597,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &245680379
 RectTransform:
   m_ObjectHideFlags: 0
@@ -4380,12 +4380,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _IPAddress: 127.0.0.1
-  _password: 
-  _playerName: 
+  _password: default
+  _playerName: Player
   _playerCount:
     m_InternalValue: 0
-  _readyPlayerCount:
-    m_InternalValue: 0
+  _readyPlayerCount: 0
 --- !u!4 &2005154127
 Transform:
   m_ObjectHideFlags: 0

@@ -1,24 +1,17 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using ShapeFight;
 using Unity.Collections;
 using UnityEngine;
 using Unity.Netcode;
 using Unity.Netcode.Transports.UNET;
-using UnityEngine.PlayerLoop;
 using Random = UnityEngine.Random;
 
 public class ConnectionManager : NetworkBehaviour
 {
-    
-
     public string _IPAddress = "127.0.0.1";
     public string _password = "";
-    public string _playerName = "Player";
+    public string _playerName = "";
     NetworkList<FixedString32Bytes> _playerNames;
     public NetworkVariable<int> _playerCount = new NetworkVariable<int>();
-    public NetworkVariable<int> _readyPlayerCount = new NetworkVariable<int>();
 
     void Awake()
     {
@@ -37,8 +30,16 @@ public class ConnectionManager : NetworkBehaviour
     public void Host()
     {
         NetworkManager.Singleton.ConnectionApprovalCallback += ApprovalCheck;
+
+        if (_playerName == "")
+            _playerName = "Player " + NetworkManager.LocalClientId;
+
+        if (_password == "")
+            _password = "default";
+
         _playerNames.Add(_playerName);
-        _playerCount.Value += 1;
+        _playerCount.Value = 1;
+
         NetworkManager.Singleton.StartHost();
     }
 
@@ -46,6 +47,13 @@ public class ConnectionManager : NetworkBehaviour
     {
         m_transport = NetworkManager.Singleton.GetComponent<UNetTransport>();
         m_transport.ConnectAddress = _IPAddress;
+
+        if (_playerName == "")
+            _playerName = "Player " + NetworkManager.LocalClientId;
+
+        if (_password == "")
+            _password = "default";
+
         NetworkManager.Singleton.NetworkConfig.ConnectionData = System.Text.Encoding.ASCII.GetBytes(_password + ";" + _playerName);
         NetworkManager.Singleton.StartClient();
     }
@@ -53,6 +61,9 @@ public class ConnectionManager : NetworkBehaviour
     private void ApprovalCheck(byte[] connectionData, ulong clientID,
         NetworkManager.ConnectionApprovedDelegate callback)
     {
+        if(_playerCount.Value > 2)
+            callback(false, null, false, Vector3.zero, Quaternion.identity);
+
         //Check Password
         string[] datas = System.Text.Encoding.ASCII.GetString(connectionData).Split(';');
         bool approve = datas[0] == _password;
@@ -72,23 +83,5 @@ public class ConnectionManager : NetworkBehaviour
     public void OnIPAddressChanged(string newAddress)
     {
         _IPAddress = newAddress;
-    }
-
-    public void PlayerReady(bool isReady)
-    {
-        if (isReady)
-            _readyPlayerCount.Value += 1;
-        else
-            _readyPlayerCount.Value -= 1;
-
-        CheckAllPlayerReady();
-    }
-
-    public void CheckAllPlayerReady()
-    {
-        if (_readyPlayerCount.Value == 2)
-        {
-            GameManager.instance.gameLaunched.Value = true;
-        }
     }
 }

@@ -6,8 +6,9 @@ namespace ShapeFight
 {
     public class Player : NetworkBehaviour
     {
-        public static int id = 0;
+        public int id = 0;
         int idcolor = 0;
+        public GameObject[] playerFormes;
 
         private CharacterController controller;
         private Vector3 playerVelocity;
@@ -29,26 +30,33 @@ namespace ShapeFight
         {
             if (IsOwner) GameManager.instance.player = this;
 
+            transform.position = GameManager.instance.startPosLoby[OwnerClientId].position;
+            transform.rotation = GameManager.instance.startPosLoby[OwnerClientId].rotation;
 
+            id = (int)OwnerClientId;
             idcolor = id;
-            id++;
+
+            for (int i = playerFormes.Length; i-->0;)
+            {
+                playerFormes[i].SetActive(i == idcolor);
+            }
 
             if (IsLocalPlayer)
             {
                 controller = gameObject.AddComponent<CharacterController>();
             }
 
-            switch (idcolor)
-            {
-                case 0:
-                    gameObject.GetComponent<Renderer>().material.color = Color.red;
-                    break;
-                case 1:
-                    gameObject.GetComponent<Renderer>().materials[0].color = Color.blue;
-                    break;
-                default:
-                    break;
-            }
+            //switch (idcolor)
+            //{
+            //    case 0:
+            //        gameObject.GetComponent<Renderer>().material.color = Color.red;
+            //        break;
+            //    case 1:
+            //        gameObject.GetComponent<Renderer>().materials[0].color = Color.blue;
+            //        break;
+            //    default:
+            //        break;
+            //}
         }
 
         void Move()
@@ -59,7 +67,7 @@ namespace ShapeFight
                 playerVelocity.y = 0f;
             }
 
-            Vector3 move = new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical"));
+            Vector3 move = new Vector3(-Input.GetAxis("Horizontal"), 0, -Input.GetAxis("Vertical"));
             controller.Move(move * Time.deltaTime * playerSpeed);
 
             if (move != Vector3.zero)
@@ -109,11 +117,13 @@ namespace ShapeFight
             {
                 if (hit[i].transform)
                 {
-                    //Debug.Log(hit.transform.gameObject.name);
+                    //Debug.Log(hit[i].transform.gameObject.name);
                     PickeUpObject obj = hit[i].transform.gameObject.GetComponent<PickeUpObject>();
                     if (obj != null)
                     {
-                        //print(obj.gameObject.name);
+                        if (obj.isPickedUp) return;
+
+                        print(obj.gameObject.name);
 
                         if (IsServer)
                             PickupObjectClientRpc(obj.NetworkObjectId);
@@ -142,11 +152,11 @@ namespace ShapeFight
         [ClientRpc]
         void PickupObjectClientRpc(ulong objectToPickupID)
         {
-            //print("try to pickup");
+            print("try to pickup");
 
             NetworkManager.SpawnManager.SpawnedObjects.TryGetValue(objectToPickupID, out var objectToPickup);
             // l'objet et deja pris donc peut pas etre pris
-            if (objectToPickup == null || objectToPickup.transform.parent != null) return;
+            if (objectToPickup == null) return;
 
             //print("object pickup");
 
@@ -192,6 +202,12 @@ namespace ShapeFight
         }
 
 
+        public void TpToStartGame()
+        {
+            transform.position = GameManager.instance.startPosGame[OwnerClientId].position;
+            transform.rotation = GameManager.instance.startPosGame[OwnerClientId].rotation;
+        }
+
 
         public void AddPointsToPlayer(int idPlayer, int nbPoints = 1)
         {
@@ -222,12 +238,10 @@ namespace ShapeFight
         [ClientRpc]
         void PlayerReadyClientRpc()
         {
-            print(GameManager.instance.nbPlayerReady);
-
             GameManager.instance.nbPlayerReady++;
             if (GameManager.instance.nbPlayerReady == 2)
             {
-                GameManager.instance.gameLaunched.Value = true;
+                GameManager.instance.StartGame();
             }
         }
     }

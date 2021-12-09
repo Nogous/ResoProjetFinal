@@ -17,7 +17,7 @@ GameObject:
   - component: {fileID: 5242347304273149658}
   - component: {fileID: -6716583423102148746}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: PickupBaseTest
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

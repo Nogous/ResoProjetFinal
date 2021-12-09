@@ -11,11 +11,17 @@ namespace ShapeFight
 
         public Player player;
 
+        public Transform[] startPosLoby;
+        public Transform[] startPosGame;
+
         //interface
         public Text scoreP1;
         public Text scoreP2;
 
-        public Transform camera;
+        public GameObject cameraLoby;
+        public GameObject cameraGame;
+
+        [SerializeField] private GameObject validationUI;
 
         public NetworkVariable<bool> gameLaunched = new NetworkVariable<bool>();
         public int nbPlayerReady = 0;
@@ -27,6 +33,9 @@ namespace ShapeFight
                 instance = this;
             else
                 Destroy(this);
+
+            cameraLoby.SetActive(true);
+            cameraGame.SetActive(false);
         }
 
         public void AddPointsToPlayer(int idPlayer, int nbPoints = 1)
@@ -39,6 +48,18 @@ namespace ShapeFight
         {
             isReady = true;
             player.PlayerReady();
+        }
+
+        public void StartGame()
+        {
+            validationUI.SetActive(false);
+
+            player.TpToStartGame();
+
+            cameraLoby.SetActive(false);
+            cameraGame.SetActive(true);
+
+            gameLaunched.Value = true;
         }
 
         //private void OnGUI()
